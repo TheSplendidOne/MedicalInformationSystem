@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Mis.Models
+@inject UserManager<ApplicationUser> UserManager
+@model ShowMeetingCellsViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@functions
+{
+
+    public async Task<Boolean> IsDoctor(String userId)
+    {
+        var roles = await UserManager.GetRolesAsync(await UserManager.FindByIdAsync(userId));
+        return roles.Contains("Doctor");
+    }
+
+    public async Task<Boolean> IsYourSchedule(String userId)
+    {
+        return await IsDoctor(userId) && (await UserManager.GetUserAsync(User)).Id == Model.DoctorId;
+    }
+
+}
+<h1>Schedule</h1>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Meeting Time</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach(var cell in Model.Cells)
+    {
+        <tr>
+            <td>@cell.MeetingDateTime.ToString("g")</td>
+            <td>
+                @if ((await UserManager.GetUserAsync(User)).Id == Model.DoctorId)
+                {
+                    if (!String.IsNullOrEmpty(cell.PatientId))
+                    {
+                        <a class="btn btn-primary" asp-controller="Profile" asp-action="Index" asp-route-userId="@cell.PatientId">Profile</a>
+                    }
+                }
+                @if (String.IsNullOrEmpty(cell.PatientId))
+                {
+                    <a class="btn btn-primary" asp-controller="MeetingCells" asp-action="Register" asp-route-cellId="@cell.Id" asp-route-doctorId="@Model.DoctorId">Register for a meeting</a>
+                }
+                @if ((await UserManager.GetUserAsync(User)).Id == cell.PatientId)
+                {
+                    <a class="btn btn-primary" asp-controller="MeetingCells" asp-action="CancelMeeting" asp-route-cellId="@cell.Id" asp-route-doctorId="@Model.DoctorId">Cancel meeting</a>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<a class="btn btn-primary" asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.DoctorId">Doctor profile</a>

@@ -1,0 +1,107 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata
+@using Mis.Models
+@inject UserManager<ApplicationUser> UserManager
+@model Mis.Models.ProfileViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@functions
+{
+
+    public async Task<Boolean> IsDoctor(String userId)
+    {
+        var roles = await UserManager.GetRolesAsync(await UserManager.FindByIdAsync(userId));
+        return roles.Contains("Doctor");
+    }
+
+}
+
+<div class="block-info">
+    <h2>@(Model.LastName + " " + Model.FirstName + " " + Model.MiddleName)</h2>
+</div>
+
+<div>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <div class="d-flex flex-column">
+                <div class="d-flex flex-row block-info">
+                    @if(Model.ProfilePicture != null)
+                    {
+                        <img id="profilePicture" style="border-radius: 10px;" src="data:image/*;base64,@(Convert.ToBase64String(Model.ProfilePicture))">
+                    }
+                    else
+                    {
+                        <img id="profilePicture" style="border-radius: 10px" src="">
+                    }
+                </div>
+                <div class="block-info">
+                    <div class="d-flex flex-row">
+                        <label class="profile-label" style="min-width: 100px;">Birthday:</label>
+                        <label>@Model.Birthday.ToString("d")</label>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <label class="profile-label" style="min-width: 100px;">E-mail:</label>
+                        <label>@Model.Email</label>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <label class="profile-label" style="min-width: 100px;">Phone:</label>
+                        <label>@Model.PhoneNumber</label>
+                    </div>
+                </div>
+                <div class="block-info">
+                    @if (User.Identity.IsAuthenticated && (await UserManager.GetRolesAsync(await UserManager.GetUserAsync(User))).Contains("Basic"))
+                    {
+                        <div class="form-group">
+                            <a class="btn btn-primary" asp-controller="MeetingCells" asp-action="ShowMeetingCells" asp-route-userId="@Model.Id">Schedule</a>
+                        </div>
+                    }
+                    @if (User.Identity.IsAuthenticated && (await UserManager.GetRolesAsync(await UserManager.GetUserAsync(User))).Contains("Admin"))
+                    {
+                        <div class="form-group">
+                            <a class="btn btn-primary" asp-controller="MeetingCells" asp-action="AddMeetingCells" asp-route-userId="@Model.Id">Add meeting cells</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            @if(!String.IsNullOrEmpty(Model.About))
+            {
+                <div class="block-info">
+                    @Model.About
+                </div>
+            }
+            @if (await UserManager.GetUserAsync(User) != null)
+            {
+                <form asp-controller="Comment" asp-action="AddComment"> 
+                    <div class="block-info">
+                        <div class="form-group">
+                            <label>Add comment</label>
+                            <textarea name="content" class="form-control"></textarea>
+                        </div>
+                        <button class="btn btn-info" asp-controller="Comment" asp-action="AddComment" asp-route-authorId="@((await UserManager.GetUserAsync(User)).Id)" asp-route-ownerId="@Model.Id">Send</button>
+                        @*<input  type="submit" value="Update" class="btn btn-primary" style="width: auto"/>*@
+                    </div>
+                </form>
+            }
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="block-info">
+                    <h4>@(comment.Author.LastName + " " + comment.Author.FirstName)</h4>
+                    <div class="d-flex flex-row">
+                        <label class="profile-label" style="min-width: 100px;">Content:</label>
+                        <label>@comment.Content</label>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <label class="profile-label" style="min-width: 100px;">Date:</label>
+                        <label>@comment.CreationDate.ToString("g")</label>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Mis.Models
+@inject UserManager<ApplicationUser> UserManager
+@model List<Mis.Models.UserRolesViewModel>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@functions
+{
+
+    public async Task<Boolean> IsDoctor(String userId)
+    {
+        var roles = await UserManager.GetRolesAsync(await UserManager.FindByIdAsync(userId));
+        return roles.Contains("Doctor");
+    }
+
+}
+<h1>User Roles</h1>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.FirstName</td>
+            <td>@user.LastName</td>
+            <td>@user.Email</td>
+            <td>@string.Join(" , ", user.Roles.ToList())</td>
+            <td>
+                <a class="btn btn-primary" asp-controller="Profile" asp-action="Index" asp-route-userId="@user.UserId">Profile</a>
+            </td>
+            <td>
+                <a class="btn btn-primary" asp-controller="UserManager" asp-action="ManageRoles" asp-route-userId="@user.UserId">Manage Roles</a>
+            </td>
+            @if (await IsDoctor(user.UserId))
+            {
+                <td>
+                    <a class="btn btn-primary" asp-controller="UserManager" asp-action="ManageDoctorInfo" asp-route-userId="@user.UserId">Manage Doctor Info</a>
+                </td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>

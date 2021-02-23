@@ -1,0 +1,45 @@
+﻿@using Mis.Data
+@inject ApplicationDbContext DbContext
+@model AddMeetingCellsViewModel
+@{
+    ViewData["Title"] = "AddMeetingCells";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<form method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add Meeting Cells</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>DoctorId</label>
+                        <input asp-for="@Model.DoctorId" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Meeting Date</label>
+                        <input asp-for="@Model.MeetingDate" class="form-control" type="date" min="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" value="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Time</label>
+                        <input asp-for="@Model.StartTime" class="form-control" type="time">
+                    </div>
+                    <div class="form-group">
+                        <label>End Time</label>
+                        <input asp-for="@Model.EndTime" class="form-control" type="time">
+                    </div>
+                    <div class="form-group">
+                        <label>Meeting Time Span (in minutes)</label>
+                        <input asp-for="@Model.MeetingTimeSpan" class="form-control" type="number" min="1" value="1">
+                    </div>
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                </div>
+                <div class="card-footer">
+                    <input type="submit" value="Update" class="btn btn-primary" style="width: auto" />
+                    <a asp-controller="Profile" asp-action="Index" asp-route-userId="@Model.DoctorId" class="btn btn-primary" style="width: auto">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

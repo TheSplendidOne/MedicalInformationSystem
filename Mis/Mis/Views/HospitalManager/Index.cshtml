@@ -1,0 +1,35 @@
+﻿@model List<Hospital>
+@{
+    ViewData["Title"] = "Hospital Manager";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>Hospital Manager</h1>
+
+<a class="btn btn-primary" asp-controller="HospitalManager" asp-action="AddHospital" >Add New Hospital</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var hospital in Model)
+        {
+            <tr>
+                <td>@hospital.Id</td>
+                <td>@hospital.Name</td>
+                <td>@hospital.Address</td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="HospitalProfile" asp-action="Index" asp-route-hospitalId="@hospital.Id">Hospital Profile</a>
+                </td>
+                <td>
+                    <a class="btn btn-primary" asp-controller="HospitalManager" asp-action="ManageHospital" asp-route-hospitalId="@hospital.Id">Manage Hospital</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
